@@ -6,7 +6,7 @@ const GraphView = () => {
   const [elements, setElements] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/stations')  // Assuming your backend is at port 5000
+    axios.get('http://localhost:5000/stations')
       .then(res => {
         const stations = res.data;
 

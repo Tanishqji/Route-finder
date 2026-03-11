@@ -133,7 +133,6 @@ export default function App() {
         Indore Route Pathfinder
       </h1>
 
-      {/* 🧭 Shortest Path Section */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>🧭 Find Best Route</h2>
         <form onSubmit={handleFindShortestPath} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
@@ -172,7 +171,6 @@ export default function App() {
         )}
       </section>
 
-      {/* 📍 Add Location */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>📍 Add Location</h2>
         <form onSubmit={handleCreateLocation} style={{ display: "flex", gap: "10px" }}>
@@ -188,7 +186,6 @@ export default function App() {
         </form>
       </section>
 
-      {/* 🔗 Connect Locations */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>🔗 Connect Locations</h2>
         <form onSubmit={handleConnectLocations} style={{ display: "grid", gap: 10 }}>
@@ -240,7 +237,6 @@ export default function App() {
         </form>
       </section>
 
-      {/* 📋 Location List */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>📋 Locations</h2>
         {locations.length === 0 ? (

@@ -10,17 +10,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Allowed frontend origins
 const allowedOrigins = [
   "https://indore-metro.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173"
 ];
 
-// ✅ Enhanced CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {
@@ -33,14 +30,13 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ✅ Enhanced MongoDB connection with retry logic
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
@@ -54,12 +50,10 @@ const connectDB = async () => {
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
     console.error('❌ MongoDB connection error:', err);
-    // Exit process with failure
     process.exit(1);
   }
 };
 
-// ✅ Database connection events
 mongoose.connection.on('connected', () => {
   console.log('📚 Mongoose connected to DB');
 });
@@ -72,14 +66,12 @@ mongoose.connection.on('disconnected', () => {
   console.warn('⚠️ Mongoose disconnected from DB');
 });
 
-// ✅ Graceful shutdown
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
   console.log('⏏️ Mongoose connection disconnected through app termination');
   process.exit(0);
 });
 
-// ✅ Enhanced root route
 app.get('/', (req, res) => {
   res.json({
     message: 'Indore Metro Backend is running 🚆',
@@ -91,7 +83,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// ✅ Health check endpoint
 app.get('/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   
@@ -104,11 +95,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ✅ API Routes
 app.use('/api/stations', stationRoutes);
 app.use('/api/shortest-path', shortestPathRoutes);
 
-// ✅ 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -118,7 +107,6 @@ app.use((req, res) => {
   });
 });
 
-// ✅ Enhanced error handler
 app.use((err, req, res, next) => {
   console.error('🔥 Unhandled error:', err.stack);
   
@@ -135,14 +123,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ Start server
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  connectDB(); // Initialize DB connection after server starts
+  connectDB();
 });
 
-// ✅ Server timeout configuration
-server.keepAliveTimeout = 120 * 1000; // 2 minutes
-server.headersTimeout = 125 * 1000; // 2 minutes + 5 seconds
+server.keepAliveTimeout = 120 * 1000;
+server.headersTimeout = 125 * 1000;
 
 export default server;

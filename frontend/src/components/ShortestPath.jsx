@@ -1,4 +1,3 @@
-// ShortestPath.jsx
 import React, { useState, useEffect } from "react";
 import { getStations } from "./api";
 

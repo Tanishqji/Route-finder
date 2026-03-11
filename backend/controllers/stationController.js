@@ -1,6 +1,5 @@
 import Station from '../models/Station.js';
 
-// Get all stations
 export const getStations = async (req, res) => {
   try {
     const stations = await Station.find().populate('connections.station');
@@ -10,7 +9,6 @@ export const getStations = async (req, res) => {
   }
 };
 
-// Create a new station
 export const createStation = async (req, res) => {
   try {
     const { name } = req.body;
@@ -22,12 +20,10 @@ export const createStation = async (req, res) => {
   }
 };
 
-// Connect two stations with distance and cost
 export const connectStations = async (req, res) => {
   try {
     const { stationId1, stationId2, distance, cost } = req.body;
 
-    // Find both stations
     const station1 = await Station.findById(stationId1);
     const station2 = await Station.findById(stationId2);
 
@@ -35,14 +31,12 @@ export const connectStations = async (req, res) => {
       return res.status(404).json({ message: 'One or both stations not found' });
     }
 
-    // Add connection from station1 to station2
     station1.connections.push({
       station: station2._id,
       distance,
       cost,
     });
 
-    // Add connection from station2 to station1 (undirected graph)
     station2.connections.push({
       station: station1._id,
       distance,

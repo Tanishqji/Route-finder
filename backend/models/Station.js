@@ -1,4 +1,3 @@
-// models/Station.js
 import mongoose from "mongoose";
 
 const connectionSchema = new mongoose.Schema({

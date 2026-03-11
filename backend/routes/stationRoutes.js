@@ -3,7 +3,6 @@ import Station from "../models/Station.js";
 
 const router = express.Router();
 
-// GET /api/stations - fetch all stations with connected station names
 router.get("/", async (req, res) => {
   try {
     const stations = await Station.find().populate("connections.station", "name _id");
@@ -17,7 +16,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/stations - create a new station
 router.post("/", async (req, res) => {
   const { name, coordinates } = req.body;
 
@@ -54,19 +52,17 @@ router.post("/", async (req, res) => {
   }
 });
 
-// POST /api/stations/connect - connect two stations
 router.post("/connect", async (req, res) => {
   const { firstStation, secondStation, distance, cost } = req.body;
 
-  // Validate inputs
   if (!firstStation || !secondStation) {
     return res.status(400).json({ 
       error: "Both station IDs are required",
       example: {
         firstStation: "station_id_1",
         secondStation: "station_id_2",
-        distance: 500, // in meters
-        cost: 20 // in rupees
+        distance: 500,
+        cost: 20
       }
     });
   }
@@ -79,7 +75,6 @@ router.post("/connect", async (req, res) => {
   }
 
   try {
-    // Validate stations exist
     const [station1, station2] = await Promise.all([
       Station.findById(firstStation),
       Station.findById(secondStation)
@@ -95,7 +90,6 @@ router.post("/connect", async (req, res) => {
       });
     }
 
-    // Check for existing connections
     const connectionExists = station1.connections.some(
       conn => conn.station.toString() === secondStation
     );
@@ -107,7 +101,6 @@ router.post("/connect", async (req, res) => {
       });
     }
 
-    // Create bidirectional connection
     await Promise.all([
       Station.findByIdAndUpdate(firstStation, {
         $push: {

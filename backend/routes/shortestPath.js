@@ -4,26 +4,10 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-/**
- * @api {get} /api/shortest-path Find shortest path between stations
- * @apiName GetShortestPath
- * @apiGroup Path
- *
- * @apiParam {String} from Starting station ID
- * @apiParam {String} to Destination station ID
- *
- * @apiSuccess {Boolean} success True if path found
- * @apiSuccess {Array} path Array of station IDs in path
- * @apiSuccess {Array} pathDetails Array of station details in path
- * @apiSuccess {Number} totalDistance Total distance in meters
- * @apiSuccess {Number} totalCost Total cost in rupees
- * @apiSuccess {Number} steps Number of steps in path
- */
 router.get('/', async (req, res) => {
   const { from, to } = req.query;
   console.log(`[ShortestPath] Request from ${from} to ${to}`);
 
-  // Validate inputs
   if (!from || !to) {
     console.log('[ShortestPath] Missing parameters');
     return res.status(400).json({
@@ -34,7 +18,6 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    // Get all stations with populated connections
     console.log('[ShortestPath] Fetching stations from DB');
     const stations = await Station.find({})
       .populate('connections.station', '_id name coordinates');
@@ -47,7 +30,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // Build graph and station map
     console.log('[ShortestPath] Building graph structure');
     const graph = {};
     const stationMap = {};
@@ -55,16 +37,15 @@ router.get('/', async (req, res) => {
     stations.forEach(station => {
       const stationId = station._id.toString();
       stationMap[stationId] = station;
-      stationMap[station._id] = station; // Store both string and ObjectId versions
+      stationMap[station._id] = station;
       
       graph[stationId] = station.connections.map(conn => ({
-        stationId: conn.station._id.toString(), // Ensure string ID
+        stationId: conn.station._id.toString(),
         distance: conn.distance,
         cost: conn.cost
       }));
     });
 
-    // Validate station IDs
     if (!stationMap[from] || !stationMap[to]) {
       console.log('[ShortestPath] Invalid station IDs', {
         fromExists: !!stationMap[from],
@@ -81,7 +62,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // Dijkstra's algorithm implementation
     console.log('[ShortestPath] Calculating shortest path');
     const distances = {};
     const costs = {};
@@ -89,7 +69,6 @@ router.get('/', async (req, res) => {
     const visited = new Set();
     const unvisited = new Set(Object.keys(graph));
 
-    // Initialize
     Object.keys(graph).forEach(id => {
       distances[id] = Infinity;
       costs[id] = Infinity;
@@ -100,7 +79,6 @@ router.get('/', async (req, res) => {
     costs[from] = 0;
 
     while (unvisited.size > 0) {
-      // Find node with smallest distance
       let current = null;
       let smallestDistance = Infinity;
       
@@ -111,12 +89,10 @@ router.get('/', async (req, res) => {
         }
       }
 
-      // Exit conditions
       if (current === to || current === null) break;
       unvisited.delete(current);
       visited.add(current);
 
-      // Update neighbors
       for (const neighbor of graph[current]) {
         if (visited.has(neighbor.stationId)) continue;
         
@@ -131,16 +107,14 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Reconstruct path
     const pathIds = [];
-    let current = to.toString(); // Ensure string ID
+    let current = to.toString();
     
     while (current !== null) {
       pathIds.unshift(current);
       current = previous[current];
     }
 
-    // Check if path exists
     if (distances[to] === Infinity) {
       console.log('[ShortestPath] No path exists between stations');
       return res.status(404).json({
@@ -153,7 +127,6 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // Build detailed path response
     const pathDetails = pathIds.map(id => {
       const station = stationMap[id];
       return {
