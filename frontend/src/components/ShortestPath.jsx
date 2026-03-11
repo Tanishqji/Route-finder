@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getStations } from "./api";
+import API from '../api';
 
 export default function ShortestPath() {
   const [stations, setStations] = useState([]);
@@ -8,13 +8,13 @@ export default function ShortestPath() {
   const [pathResult, setPathResult] = useState(null);
 
   useEffect(() => {
-    getStations().then(setStations);
+    API.get('/stations').then(res => setStations(res.data));
   }, []);
 
   const findShortestPath = async () => {
     if (!from || !to) return alert("Select both stations");
-    const res = await fetch(`/api/shortest-path?from=${from}&to=${to}`);
-    const data = await res.json();
+    const res = await API.get(`/shortest-path`, { params: { from, to } });
+    const data = res.data;
     setPathResult(data);
   };
 

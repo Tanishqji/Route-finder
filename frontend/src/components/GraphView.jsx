@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ReactFlow, { MiniMap, Controls } from 'react-flow-renderer';
+import API from '../api';
 
 const GraphView = () => {
   const [elements, setElements] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/stations')
+    API.get('/stations')
       .then(res => {
         const stations = res.data;
 
