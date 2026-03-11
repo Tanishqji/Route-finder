@@ -7,7 +7,7 @@ const GraphView = () => {
 
   useEffect(() => {
     //axios.get('http://localhost:5000/stations')  // Assuming your backend is at port 5000
-     axios.get('https://route-finder-628p.onrender.com')  
+     axios.get('https://route-finder2.onrender.com/')  
       .then(res => {
         const stations = res.data;
 
